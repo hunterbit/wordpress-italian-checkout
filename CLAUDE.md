@@ -110,16 +110,17 @@ Richiedi a Claude:
 Quando ti chiedo di implementare o modificare questo plugin:
 
 1. **Leggi questo file prima di proporre soluzioni.**
-2. Prima fase: proponi struttura file/classi e signature dei metodi principali.
-3. Seconda fase: genera il codice PHP/JS completo in blocchi coerenti e pronti per l’uso, includendo:
+2. **IMPORTANTE - Autore**: Usa sempre **Rocco Fusella** come autore nei file del plugin (header WordPress, README, documentazione, ecc.).
+3. Prima fase: proponi struttura file/classi e signature dei metodi principali.
+4. Seconda fase: genera il codice PHP/JS completo in blocchi coerenti e pronti per l'uso, includendo:
    - hook WordPress/WooCommerce usati;
    - definizione dei campi con `priority`;
    - logica JS per mostra/nascondi campi;
    - validazione e salvataggio.
-4. Mantieni il codice il più semplice possibile, evitando over‑engineering.
-5. Quando possibile, commenta le parti dove un manutentore potrebbe voler cambiare:
+5. Mantieni il codice il più semplice possibile, evitando over‑engineering.
+6. Quando possibile, commenta le parti dove un manutentore potrebbe voler cambiare:
    - priorità dei campi;
-   - logica di obbligatorietà;  
+   - logica di obbligatorietà;
    - etichette e testi.
 
 ## Stato Implementazione

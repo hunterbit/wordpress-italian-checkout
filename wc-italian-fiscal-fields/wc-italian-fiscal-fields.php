@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: WooCommerce Italian Fiscal Fields
- * Plugin URI: https://github.com/yourusername/wc-italian-fiscal-fields
+ * Plugin URI: https://github.com/roccofusella/wc-italian-fiscal-fields
  * Description: Aggiunge campi fiscali italiani (Codice Fiscale, Partita IVA) al checkout WooCommerce con logica condizionale.
  * Version: 1.0.0
- * Author: Your Name
- * Author URI: https://yourwebsite.com
+ * Author: Rocco Fusella
+ * Author URI: https://roccofusella.it
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: wc-it-fiscal-fields

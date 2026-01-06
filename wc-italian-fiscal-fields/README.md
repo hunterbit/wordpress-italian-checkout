@@ -133,6 +133,11 @@ GPL v2 or later
 
 ## Autore
 
+**Rocco Fusella**
+
+- Website: [https://roccofusella.it](https://roccofusella.it)
+- GitHub: [https://github.com/roccofusella](https://github.com/roccofusella)
+
 Sviluppato seguendo le specifiche del documento CLAUDE.md
 
 ## Changelog
