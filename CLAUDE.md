@@ -10,19 +10,28 @@
 
 ### 1. Campi aggiuntivi checkout
 
-Aggiungere nella sezione di fatturazione (billing) tre entità logiche:
+Aggiungere nella sezione di fatturazione (billing) quattro campi:
 
 1. Tipologia di utente (campo richiesto)
-   - Valori: `azienda`, `persona_fisica`, `associazione_ente`.
-   - Tipo di input: select o radio (scegli la soluzione UX più semplice, preferibilmente radio).  
-   - Il valore va salvato come meta dell’ordine.
+   - Valori: `persona_fisica`, `azienda`, `associazione_ente`.
+   - Tipo di input: **select** (dropdown).
+   - Default: **persona_fisica**.
+   - Il valore va salvato come meta dell'ordine.
 
-2. Codice fiscale
+2. Ragione Sociale **[NUOVO]**
    - Campo testuale.
-   - Obbligatorio per persona fisica, opzionale o non richiesto per azienda/associazione a discrezione (inizialmente trattalo come obbligatorio solo per persona fisica).  
+   - Visibile solo per `azienda` e `associazione_ente`.
+   - Nascosto per `persona_fisica`.
+   - Obbligatorio per azienda e associazione (configurabile).
    - Salvare in order meta.
 
-3. Partita IVA
+3. Codice Fiscale
+   - Campo testuale.
+   - Obbligatorio per persona fisica.
+   - Visibile per persona fisica e associazione/ente, nascosto per azienda.
+   - Salvare in order meta.
+
+4. Partita IVA
    - Campo testuale.
    - Rilevante per azienda e associazione/ente, nascosto per persona fisica.
    - Salvare in order meta.
@@ -31,16 +40,21 @@ Aggiungere nella sezione di fatturazione (billing) tre entità logiche:
 
 Comportamento richiesto in checkout:
 
-- Se tipologia utente = **azienda**:
-  - Partita IVA: visibile e editabile.
-  - Codice fiscale: nascosto o non editabile (scegli UNA delle due strategie e implementala in modo coerente, preferibilmente **nascondere il campo** per semplicità UX).  
-
 - Se tipologia utente = **persona_fisica**:
-  - Codice fiscale: visibile e editabile.
-  - Partita IVA: nascosta.  
+  - Ragione Sociale: nascosta.
+  - Codice Fiscale: visibile e obbligatorio.
+  - Partita IVA: nascosta.
+
+- Se tipologia utente = **azienda**:
+  - Ragione Sociale: visibile e obbligatoria.
+  - Codice Fiscale: nascosto.
+  - Partita IVA: visibile e obbligatoria.
 
 - Se tipologia utente = **associazione/ente**:
-  - Sia codice fiscale sia partita IVA: visibili e editabili.  
+  - Ragione Sociale: visibile e obbligatoria.
+  - Codice Fiscale: visibile.
+  - Partita IVA: visibile.
+  - Almeno uno tra CF e P.IVA obbligatorio.  
 
 Requisiti tecnici:
 
@@ -59,11 +73,12 @@ Linee guida:
   2. Cognome (billing_last_name) – ~20
   3. Email (billing_email) – ~30
   4. Telefono (billing_phone) – ~40
-  5. Tipologia utente (NUOVO) – **es. priority 45**
-  6. Codice fiscale (NUOVO) – **es. priority 47**
-  7. Partita IVA (NUOVO) – **es. priority 49**
-  8. Azienda (billing_company) – ~50
-  9. Indirizzo, CAP, città, ecc. seguono i default.
+  5. Tipologia utente (NUOVO) – **priority 45** - SELECT con default persona_fisica
+  6. Ragione Sociale (NUOVO) – **priority 46** - Condizionale (solo azienda/associazione)
+  7. Codice fiscale (NUOVO) – **priority 47** - Condizionale
+  8. Partita IVA (NUOVO) – **priority 49** - Condizionale
+  9. Azienda (billing_company) – ~50
+  10. Indirizzo, CAP, città, ecc. seguono i default.
 
 Indicazioni per Claude:
 
@@ -124,6 +139,31 @@ Quando ti chiedo di implementare o modificare questo plugin:
    - etichette e testi.
 
 ## Stato Implementazione
+
+### 🚧 Versione 2.0.0 - In Sviluppo
+
+**Status**: Pianificazione completata, implementazione in corso
+
+**Nuove funzionalità v2.0.0**:
+- ✅ Modificato campo "Tipologia Utente" da radio buttons a **SELECT** con default persona_fisica
+- ✅ **NUOVO CAMPO**: Ragione Sociale (priority 46, visibile solo per azienda/associazione)
+- 🔄 Pagina configurazione admin (WooCommerce → Impostazioni → Campi Fiscali)
+- 🔄 Validazione algoritmica avanzata CF/P.IVA (configurabile on/off)
+- 🔄 Sistema opzioni per personalizzazione campi (22 opzioni totali)
+- 🔄 Architettura refactorizzata con 3 nuove classi
+
+**Campi checkout totali v2.0.0**: 4 campi
+1. Tipologia Utente (select, priority 45)
+2. Ragione Sociale (text, priority 46) - NUOVO
+3. Codice Fiscale (text, priority 47)
+4. Partita IVA (text, priority 49)
+
+**Dettagli tecnici v2.0.0**:
+- Nuovi file: `class-wc-it-fiscal-options.php`, `class-wc-it-fiscal-validator.php`, `class-wc-it-fiscal-admin-settings.php`, `config/settings-fields.php`
+- 22 opzioni configurabili in wp_options
+- Full backward compatibility con v1.0.0
+
+---
 
 ### ✅ Versione 1.0.0 - Completata
 
