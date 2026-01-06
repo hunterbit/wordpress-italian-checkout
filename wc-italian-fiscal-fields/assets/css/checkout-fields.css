@@ -1,39 +1,36 @@
 /**
  * Stili per i campi fiscali italiani nel checkout WooCommerce
  *
+ * v2.0.0 - Select dropdown invece di radio buttons
+ *
  * @package WC_IT_Fiscal_Fields
  */
 
-/* Campo Tipologia Utente - Radio buttons */
+/* Campo Tipologia Utente - Select dropdown */
 .wc-it-fiscal-user-type {
 	clear: both;
 }
 
+.wc-it-fiscal-user-type select {
+	width: 100%;
+	max-width: 100%;
+}
+
 .wc-it-fiscal-user-type label {
 	display: block;
-	margin-bottom: 10px;
+	margin-bottom: 5px;
 }
 
-.wc-it-fiscal-user-type input[type="radio"] {
-	margin-right: 8px;
-	vertical-align: middle;
-}
-
-.wc-it-fiscal-user-type .woocommerce-input-wrapper {
-	padding: 10px 0;
-}
-
-.wc-it-fiscal-user-type .woocommerce-input-wrapper label {
-	display: inline-block;
-	margin-right: 20px;
-	margin-bottom: 8px;
-	font-weight: normal;
+/* Campo Ragione Sociale */
+.wc-it-fiscal-ragione-sociale input {
+	width: 100%;
 }
 
 /* Campi Codice Fiscale e Partita IVA */
 .wc-it-fiscal-codice-fiscale input,
 .wc-it-fiscal-partita-iva input {
 	text-transform: uppercase;
+	width: 100%;
 }
 
 /* Sezione dati fiscali nelle pagine ordine (frontend) */
@@ -59,11 +56,16 @@
 	margin: 8px 0;
 }
 
+.woocommerce-order-fiscal-data p strong {
+	font-weight: 600;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
-	.wc-it-fiscal-user-type .woocommerce-input-wrapper label {
-		display: block;
-		margin-right: 0;
-		margin-bottom: 10px;
+	.wc-it-fiscal-user-type select,
+	.wc-it-fiscal-ragione-sociale input,
+	.wc-it-fiscal-codice-fiscale input,
+	.wc-it-fiscal-partita-iva input {
+		font-size: 16px; /* Previene zoom automatico su iOS */
 	}
 }
