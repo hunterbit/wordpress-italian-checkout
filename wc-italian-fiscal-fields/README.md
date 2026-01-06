@@ -190,6 +190,10 @@ Sviluppato seguendo le specifiche del documento CLAUDE.md
 
 ## Changelog
 
+### 2.0.1
+- **Fix**: Aggiunta dichiarazione compatibilità con WooCommerce HPOS (High-Performance Order Storage)
+- Risolto avviso di incompatibilità WooCommerce
+
 ### 2.0.0
 - **NUOVO CAMPO**: Ragione Sociale (visibile per Azienda e Associazione/Ente)
 - Tipologia Utente: cambiato da radio buttons a **SELECT dropdown** con default persona_fisica
