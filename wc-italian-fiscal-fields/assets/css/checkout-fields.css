@@ -1,0 +1,69 @@
+/**
+ * Stili per i campi fiscali italiani nel checkout WooCommerce
+ *
+ * @package WC_IT_Fiscal_Fields
+ */
+
+/* Campo Tipologia Utente - Radio buttons */
+.wc-it-fiscal-user-type {
+	clear: both;
+}
+
+.wc-it-fiscal-user-type label {
+	display: block;
+	margin-bottom: 10px;
+}
+
+.wc-it-fiscal-user-type input[type="radio"] {
+	margin-right: 8px;
+	vertical-align: middle;
+}
+
+.wc-it-fiscal-user-type .woocommerce-input-wrapper {
+	padding: 10px 0;
+}
+
+.wc-it-fiscal-user-type .woocommerce-input-wrapper label {
+	display: inline-block;
+	margin-right: 20px;
+	margin-bottom: 8px;
+	font-weight: normal;
+}
+
+/* Campi Codice Fiscale e Partita IVA */
+.wc-it-fiscal-codice-fiscale input,
+.wc-it-fiscal-partita-iva input {
+	text-transform: uppercase;
+}
+
+/* Sezione dati fiscali nelle pagine ordine (frontend) */
+.woocommerce-order-fiscal-data {
+	margin-top: 20px;
+	padding: 20px;
+	background-color: #f8f8f8;
+	border: 1px solid #e0e0e0;
+	border-radius: 4px;
+}
+
+.woocommerce-order-fiscal-data h2 {
+	margin-top: 0;
+	margin-bottom: 15px;
+	font-size: 1.2em;
+}
+
+.woocommerce-order-fiscal-data address {
+	font-style: normal;
+}
+
+.woocommerce-order-fiscal-data p {
+	margin: 8px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.wc-it-fiscal-user-type .woocommerce-input-wrapper label {
+		display: block;
+		margin-right: 0;
+		margin-bottom: 10px;
+	}
+}

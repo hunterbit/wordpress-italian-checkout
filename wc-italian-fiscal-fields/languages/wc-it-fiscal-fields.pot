@@ -1,0 +1,79 @@
+# Copyright (C) 2025 WooCommerce Italian Fiscal Fields
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: WooCommerce Italian Fiscal Fields 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/yourusername/wc-italian-fiscal-fields/issues\n"
+"POT-Creation-Date: 2025-01-06 12:00:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+
+#: wc-italian-fiscal-fields.php
+msgid "WooCommerce Italian Fiscal Fields richiede WooCommerce per funzionare. Per favore installa e attiva WooCommerce."
+msgstr ""
+
+#: includes/class-wc-it-fiscal-fields.php
+msgid "Tipologia utente"
+msgstr ""
+
+msgid "Persona Fisica"
+msgstr ""
+
+msgid "Azienda"
+msgstr ""
+
+msgid "Associazione/Ente"
+msgstr ""
+
+msgid "Codice Fiscale"
+msgstr ""
+
+msgid "Es: RSSMRA80A01H501U"
+msgstr ""
+
+msgid "Partita IVA"
+msgstr ""
+
+msgid "Es: 12345678901"
+msgstr ""
+
+msgid "Seleziona la tipologia di utente."
+msgstr ""
+
+msgid "Il Codice Fiscale è obbligatorio per persone fisiche."
+msgstr ""
+
+msgid "La Partita IVA non è richiesta per persone fisiche."
+msgstr ""
+
+msgid "La Partita IVA è obbligatoria per aziende."
+msgstr ""
+
+msgid "Il Codice Fiscale non è richiesto per aziende."
+msgstr ""
+
+msgid "Inserisci almeno il Codice Fiscale o la Partita IVA."
+msgstr ""
+
+msgid "Il Codice Fiscale deve essere di 16 caratteri alfanumerici."
+msgstr ""
+
+msgid "La Partita IVA deve essere di 11 cifre numeriche."
+msgstr ""
+
+msgid "Dati Fiscali"
+msgstr ""
+
+msgid "Tipologia:"
+msgstr ""
+
+msgid "Codice Fiscale:"
+msgstr ""
+
+msgid "Partita IVA:"
+msgstr ""
+
+msgid "Tipologia utente:"
+msgstr ""

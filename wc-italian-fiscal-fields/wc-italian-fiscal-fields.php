@@ -1,0 +1,74 @@
+<?php
+/**
+ * Plugin Name: WooCommerce Italian Fiscal Fields
+ * Plugin URI: https://github.com/yourusername/wc-italian-fiscal-fields
+ * Description: Aggiunge campi fiscali italiani (Codice Fiscale, Partita IVA) al checkout WooCommerce con logica condizionale.
+ * Version: 1.0.0
+ * Author: Your Name
+ * Author URI: https://yourwebsite.com
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: wc-it-fiscal-fields
+ * Domain Path: /languages
+ * Requires at least: 6.0
+ * Requires PHP: 7.4
+ * WC requires at least: 6.0
+ * WC tested up to: 8.5
+ */
+
+// Impedisce accesso diretto al file
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+// Definizioni costanti del plugin
+define( 'WC_IT_FISCAL_VERSION', '1.0.0' );
+define( 'WC_IT_FISCAL_PLUGIN_FILE', __FILE__ );
+define( 'WC_IT_FISCAL_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'WC_IT_FISCAL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+
+/**
+ * Verifica che WooCommerce sia attivo prima di inizializzare il plugin
+ */
+function wc_it_fiscal_check_woocommerce() {
+	if ( ! class_exists( 'WooCommerce' ) ) {
+		add_action( 'admin_notices', 'wc_it_fiscal_woocommerce_missing_notice' );
+		return false;
+	}
+	return true;
+}
+
+/**
+ * Notice se WooCommerce non è attivo
+ */
+function wc_it_fiscal_woocommerce_missing_notice() {
+	?>
+	<div class="error">
+		<p><?php esc_html_e( 'WooCommerce Italian Fiscal Fields richiede WooCommerce per funzionare. Per favore installa e attiva WooCommerce.', 'wc-it-fiscal-fields' ); ?></p>
+	</div>
+	<?php
+}
+
+/**
+ * Inizializza il plugin
+ */
+function wc_it_fiscal_init() {
+	if ( ! wc_it_fiscal_check_woocommerce() ) {
+		return;
+	}
+
+	// Carica la classe principale
+	require_once WC_IT_FISCAL_PLUGIN_DIR . 'includes/class-wc-it-fiscal-fields.php';
+
+	// Inizializza il plugin
+	WC_IT_Fiscal_Fields::get_instance();
+}
+add_action( 'plugins_loaded', 'wc_it_fiscal_init' );
+
+/**
+ * Carica text domain per le traduzioni
+ */
+function wc_it_fiscal_load_textdomain() {
+	load_plugin_textdomain( 'wc-it-fiscal-fields', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+}
+add_action( 'init', 'wc_it_fiscal_load_textdomain' );
