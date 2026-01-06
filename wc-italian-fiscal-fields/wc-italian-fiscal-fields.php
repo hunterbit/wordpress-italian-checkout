@@ -2,8 +2,8 @@
 /**
  * Plugin Name: WooCommerce Italian Fiscal Fields
  * Plugin URI: https://github.com/roccofusella/wc-italian-fiscal-fields
- * Description: Aggiunge campi fiscali italiani (Codice Fiscale, Partita IVA) al checkout WooCommerce con logica condizionale.
- * Version: 1.0.0
+ * Description: Aggiunge campi fiscali italiani (Tipologia Utente, Ragione Sociale, Codice Fiscale, Partita IVA) al checkout WooCommerce con logica condizionale e pagina di configurazione admin.
+ * Version: 2.0.0
  * Author: Rocco Fusella
  * Author URI: https://roccofusella.it
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Definizioni costanti del plugin
-define( 'WC_IT_FISCAL_VERSION', '1.0.0' );
+define( 'WC_IT_FISCAL_VERSION', '2.0.0' );
 define( 'WC_IT_FISCAL_PLUGIN_FILE', __FILE__ );
 define( 'WC_IT_FISCAL_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WC_IT_FISCAL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -57,7 +57,10 @@ function wc_it_fiscal_init() {
 		return;
 	}
 
-	// Carica la classe principale
+	// Carica le classi del plugin
+	require_once WC_IT_FISCAL_PLUGIN_DIR . 'includes/class-wc-it-fiscal-options.php';
+	require_once WC_IT_FISCAL_PLUGIN_DIR . 'includes/class-wc-it-fiscal-validator.php';
+	require_once WC_IT_FISCAL_PLUGIN_DIR . 'includes/class-wc-it-fiscal-admin-settings.php';
 	require_once WC_IT_FISCAL_PLUGIN_DIR . 'includes/class-wc-it-fiscal-fields.php';
 
 	// Inizializza il plugin

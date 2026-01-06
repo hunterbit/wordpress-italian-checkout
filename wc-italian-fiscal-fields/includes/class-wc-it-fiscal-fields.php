@@ -27,10 +27,32 @@ class WC_IT_Fiscal_Fields {
 	 * @var array
 	 */
 	private $field_keys = array(
-		'user_type'       => 'billing_user_type',
-		'codice_fiscale'  => 'billing_codice_fiscale',
-		'partita_iva'     => 'billing_partita_iva',
+		'user_type'        => 'billing_user_type',
+		'ragione_sociale'  => 'billing_ragione_sociale',
+		'codice_fiscale'   => 'billing_codice_fiscale',
+		'partita_iva'      => 'billing_partita_iva',
 	);
+
+	/**
+	 * Istanza classe Options
+	 *
+	 * @var WC_IT_Fiscal_Options
+	 */
+	private $options = null;
+
+	/**
+	 * Istanza classe Validator
+	 *
+	 * @var WC_IT_Fiscal_Validator
+	 */
+	private $validator = null;
+
+	/**
+	 * Istanza classe Admin Settings
+	 *
+	 * @var WC_IT_Fiscal_Admin_Settings
+	 */
+	private $admin_settings = null;
 
 	/**
 	 * Ottiene l'istanza singleton
@@ -48,6 +70,15 @@ class WC_IT_Fiscal_Fields {
 	 * Costruttore - registra tutti gli hook
 	 */
 	private function __construct() {
+		// Inizializza le dipendenze
+		$this->options   = new WC_IT_Fiscal_Options();
+		$this->validator = new WC_IT_Fiscal_Validator( $this->options );
+
+		// Inizializza admin settings solo in admin
+		if ( is_admin() ) {
+			$this->admin_settings = new WC_IT_Fiscal_Admin_Settings();
+		}
+
 		// Hook per aggiungere i campi al checkout
 		add_filter( 'woocommerce_checkout_fields', array( $this, 'add_checkout_fields' ) );
 
@@ -78,45 +109,64 @@ class WC_IT_Fiscal_Fields {
 	 * @return array
 	 */
 	public function add_checkout_fields( $fields ) {
-		// Campo: Tipologia Utente (radio buttons)
+		// Campo: Tipologia Utente (select dropdown)
 		// Priority 45: dopo telefono (40), prima di azienda (50)
-		$fields['billing'][ $this->field_keys['user_type'] ] = array(
-			'type'     => 'radio',
-			'label'    => __( 'Tipologia utente', 'wc-it-fiscal-fields' ),
-			'required' => true,
-			'class'    => array( 'form-row-wide', 'wc-it-fiscal-user-type' ),
-			'priority' => 45,
-			'options'  => array(
-				'persona_fisica'    => __( 'Persona Fisica', 'wc-it-fiscal-fields' ),
-				'azienda'           => __( 'Azienda', 'wc-it-fiscal-fields' ),
-				'associazione_ente' => __( 'Associazione/Ente', 'wc-it-fiscal-fields' ),
-			),
-			'default'  => 'persona_fisica',
-		);
+		if ( $this->options->is_field_enabled( 'user_type' ) ) {
+			$fields['billing'][ $this->field_keys['user_type'] ] = array(
+				'type'     => 'select',
+				'label'    => $this->options->get_field_label( 'user_type' ),
+				'required' => true,
+				'class'    => array( 'form-row-wide', 'wc-it-fiscal-user-type' ),
+				'priority' => $this->options->get_field_priority( 'user_type' ),
+				'options'  => array(
+					'persona_fisica'    => __( 'Persona Fisica', 'wc-it-fiscal-fields' ),
+					'azienda'           => __( 'Azienda', 'wc-it-fiscal-fields' ),
+					'associazione_ente' => __( 'Associazione/Ente', 'wc-it-fiscal-fields' ),
+				),
+				'default'  => 'persona_fisica',
+			);
+		}
+
+		// Campo: Ragione Sociale (NUOVO in v2.0.0)
+		// Priority 46: dopo tipologia utente (45), prima di codice fiscale (47)
+		if ( $this->options->is_field_enabled( 'ragione_sociale' ) ) {
+			$fields['billing'][ $this->field_keys['ragione_sociale'] ] = array(
+				'type'        => 'text',
+				'label'       => $this->options->get_field_label( 'ragione_sociale' ),
+				'required'    => false, // Obbligatorietà gestita dinamicamente via JS e validazione PHP
+				'class'       => array( 'form-row-wide', 'wc-it-fiscal-ragione-sociale' ),
+				'priority'    => $this->options->get_field_priority( 'ragione_sociale' ),
+				'placeholder' => $this->options->get_field_placeholder( 'ragione_sociale' ),
+			);
+		}
 
 		// Campo: Codice Fiscale
-		// Priority 47: dopo tipologia utente (45)
-		$fields['billing'][ $this->field_keys['codice_fiscale'] ] = array(
-			'type'        => 'text',
-			'label'       => __( 'Codice Fiscale', 'wc-it-fiscal-fields' ),
-			'required'    => false, // Obbligatorietà gestita dinamicamente via JS e validazione PHP
-			'class'       => array( 'form-row-wide', 'wc-it-fiscal-codice-fiscale' ),
-			'priority'    => 47,
-			'placeholder' => __( 'Es: RSSMRA80A01H501U', 'wc-it-fiscal-fields' ),
-			'maxlength'   => 16,
-		);
+		// Priority 47: dopo ragione sociale (46)
+		if ( $this->options->is_field_enabled( 'cf' ) ) {
+			$fields['billing'][ $this->field_keys['codice_fiscale'] ] = array(
+				'type'        => 'text',
+				'label'       => $this->options->get_field_label( 'cf' ),
+				'required'    => false, // Obbligatorietà gestita dinamicamente via JS e validazione PHP
+				'class'       => array( 'form-row-wide', 'wc-it-fiscal-codice-fiscale' ),
+				'priority'    => $this->options->get_field_priority( 'cf' ),
+				'placeholder' => $this->options->get_field_placeholder( 'cf' ),
+				'maxlength'   => 16,
+			);
+		}
 
 		// Campo: Partita IVA
 		// Priority 49: dopo codice fiscale (47), prima di azienda (50)
-		$fields['billing'][ $this->field_keys['partita_iva'] ] = array(
-			'type'        => 'text',
-			'label'       => __( 'Partita IVA', 'wc-it-fiscal-fields' ),
-			'required'    => false, // Obbligatorietà gestita dinamicamente via JS e validazione PHP
-			'class'       => array( 'form-row-wide', 'wc-it-fiscal-partita-iva' ),
-			'priority'    => 49,
-			'placeholder' => __( 'Es: 12345678901', 'wc-it-fiscal-fields' ),
-			'maxlength'   => 11,
-		);
+		if ( $this->options->is_field_enabled( 'piva' ) ) {
+			$fields['billing'][ $this->field_keys['partita_iva'] ] = array(
+				'type'        => 'text',
+				'label'       => $this->options->get_field_label( 'piva' ),
+				'required'    => false, // Obbligatorietà gestita dinamicamente via JS e validazione PHP
+				'class'       => array( 'form-row-wide', 'wc-it-fiscal-partita-iva' ),
+				'priority'    => $this->options->get_field_priority( 'piva' ),
+				'placeholder' => $this->options->get_field_placeholder( 'piva' ),
+				'maxlength'   => 11,
+			);
+		}
 
 		return $fields;
 	}
@@ -133,6 +183,25 @@ class WC_IT_Fiscal_Fields {
 				array( 'jquery' ),
 				WC_IT_FISCAL_VERSION,
 				true
+			);
+
+			// Localizza configurazione per JavaScript
+			wp_localize_script(
+				'wc-it-fiscal-checkout',
+				'WC_IT_Fiscal_Config',
+				array(
+					'enable_ragione_sociale' => $this->options->is_field_enabled( 'ragione_sociale' ) ? 1 : 0,
+					'enable_cf'              => $this->options->is_field_enabled( 'cf' ) ? 1 : 0,
+					'enable_piva'            => $this->options->is_field_enabled( 'piva' ) ? 1 : 0,
+					'rules'                  => array(
+						'ragione_sociale_required_azienda'       => $this->options->is_field_required_for_user_type( 'ragione_sociale', 'azienda' ) ? 1 : 0,
+						'ragione_sociale_required_associazione'  => $this->options->is_field_required_for_user_type( 'ragione_sociale', 'associazione_ente' ) ? 1 : 0,
+						'cf_required_persona_fisica'             => $this->options->is_field_required_for_user_type( 'cf', 'persona_fisica' ) ? 1 : 0,
+						'cf_required_associazione'               => $this->options->is_field_required_for_user_type( 'cf', 'associazione_ente' ) ? 1 : 0,
+						'piva_required_azienda'                  => $this->options->is_field_required_for_user_type( 'piva', 'azienda' ) ? 1 : 0,
+						'piva_required_associazione'             => $this->options->is_field_required_for_user_type( 'piva', 'associazione_ente' ) ? 1 : 0,
+					),
+				)
 			);
 
 			// CSS per stili custom (opzionale)
@@ -155,9 +224,10 @@ class WC_IT_Fiscal_Fields {
 	 * @param WP_Error $errors Oggetto errori WooCommerce.
 	 */
 	public function validate_checkout_fields( $data, $errors ) {
-		$user_type       = isset( $data[ $this->field_keys['user_type'] ] ) ? sanitize_text_field( $data[ $this->field_keys['user_type'] ] ) : '';
-		$codice_fiscale  = isset( $data[ $this->field_keys['codice_fiscale'] ] ) ? sanitize_text_field( $data[ $this->field_keys['codice_fiscale'] ] ) : '';
-		$partita_iva     = isset( $data[ $this->field_keys['partita_iva'] ] ) ? sanitize_text_field( $data[ $this->field_keys['partita_iva'] ] ) : '';
+		$user_type        = isset( $data[ $this->field_keys['user_type'] ] ) ? sanitize_text_field( $data[ $this->field_keys['user_type'] ] ) : '';
+		$ragione_sociale  = isset( $data[ $this->field_keys['ragione_sociale'] ] ) ? sanitize_text_field( $data[ $this->field_keys['ragione_sociale'] ] ) : '';
+		$codice_fiscale   = isset( $data[ $this->field_keys['codice_fiscale'] ] ) ? sanitize_text_field( $data[ $this->field_keys['codice_fiscale'] ] ) : '';
+		$partita_iva      = isset( $data[ $this->field_keys['partita_iva'] ] ) ? sanitize_text_field( $data[ $this->field_keys['partita_iva'] ] ) : '';
 
 		// Verifica che la tipologia utente sia selezionata
 		if ( empty( $user_type ) ) {
@@ -169,8 +239,12 @@ class WC_IT_Fiscal_Fields {
 		switch ( $user_type ) {
 			case 'persona_fisica':
 				// Persona fisica: Codice Fiscale obbligatorio
-				if ( empty( $codice_fiscale ) ) {
+				if ( empty( $codice_fiscale ) && $this->options->is_field_required_for_user_type( 'cf', 'persona_fisica' ) ) {
 					$errors->add( 'billing_codice_fiscale', __( 'Il Codice Fiscale è obbligatorio per persone fisiche.', 'wc-it-fiscal-fields' ) );
+				}
+				// Ragione Sociale non dovrebbe essere compilata
+				if ( ! empty( $ragione_sociale ) ) {
+					$errors->add( 'billing_ragione_sociale', __( 'La Ragione Sociale non è richiesta per persone fisiche.', 'wc-it-fiscal-fields' ) );
 				}
 				// Partita IVA non dovrebbe essere compilata
 				if ( ! empty( $partita_iva ) ) {
@@ -179,8 +253,12 @@ class WC_IT_Fiscal_Fields {
 				break;
 
 			case 'azienda':
+				// Azienda: Ragione Sociale obbligatoria
+				if ( empty( $ragione_sociale ) && $this->options->is_field_required_for_user_type( 'ragione_sociale', 'azienda' ) ) {
+					$errors->add( 'billing_ragione_sociale', __( 'La Ragione Sociale è obbligatoria per aziende.', 'wc-it-fiscal-fields' ) );
+				}
 				// Azienda: Partita IVA obbligatoria
-				if ( empty( $partita_iva ) ) {
+				if ( empty( $partita_iva ) && $this->options->is_field_required_for_user_type( 'piva', 'azienda' ) ) {
 					$errors->add( 'billing_partita_iva', __( 'La Partita IVA è obbligatoria per aziende.', 'wc-it-fiscal-fields' ) );
 				}
 				// Codice Fiscale non dovrebbe essere compilato (nascosto nel frontend)
@@ -190,21 +268,30 @@ class WC_IT_Fiscal_Fields {
 				break;
 
 			case 'associazione_ente':
-				// Associazione/Ente: entrambi possono essere presenti, almeno uno obbligatorio
+				// Associazione/Ente: Ragione Sociale obbligatoria
+				if ( empty( $ragione_sociale ) && $this->options->is_field_required_for_user_type( 'ragione_sociale', 'associazione_ente' ) ) {
+					$errors->add( 'billing_ragione_sociale', __( 'La Ragione Sociale è obbligatoria per associazioni/enti.', 'wc-it-fiscal-fields' ) );
+				}
+				// Associazione/Ente: almeno uno tra CF e P.IVA obbligatorio
 				if ( empty( $codice_fiscale ) && empty( $partita_iva ) ) {
 					$errors->add( 'billing_fiscal_data', __( 'Inserisci almeno il Codice Fiscale o la Partita IVA.', 'wc-it-fiscal-fields' ) );
 				}
 				break;
 		}
 
-		// Validazione formato Codice Fiscale (basic - 16 caratteri alfanumerici)
-		if ( ! empty( $codice_fiscale ) && ! preg_match( '/^[A-Z0-9]{16}$/i', $codice_fiscale ) ) {
-			$errors->add( 'billing_codice_fiscale', __( 'Il Codice Fiscale deve essere di 16 caratteri alfanumerici.', 'wc-it-fiscal-fields' ) );
+		// Validazione formato Ragione Sociale
+		if ( ! empty( $ragione_sociale ) && ! $this->validator->validate_ragione_sociale( $ragione_sociale ) ) {
+			$errors->add( 'billing_ragione_sociale', __( 'La Ragione Sociale non è valida (minimo 2 caratteri, massimo 100).', 'wc-it-fiscal-fields' ) );
 		}
 
-		// Validazione formato Partita IVA (11 cifre numeriche)
-		if ( ! empty( $partita_iva ) && ! preg_match( '/^[0-9]{11}$/', $partita_iva ) ) {
-			$errors->add( 'billing_partita_iva', __( 'La Partita IVA deve essere di 11 cifre numeriche.', 'wc-it-fiscal-fields' ) );
+		// Validazione formato Codice Fiscale (usa validator con algoritmo opzionale)
+		if ( ! empty( $codice_fiscale ) && ! $this->validator->validate_codice_fiscale( $codice_fiscale, $user_type ) ) {
+			$errors->add( 'billing_codice_fiscale', __( 'Il Codice Fiscale non è valido.', 'wc-it-fiscal-fields' ) );
+		}
+
+		// Validazione formato Partita IVA (usa validator con algoritmo opzionale)
+		if ( ! empty( $partita_iva ) && ! $this->validator->validate_partita_iva( $partita_iva ) ) {
+			$errors->add( 'billing_partita_iva', __( 'La Partita IVA non è valida.', 'wc-it-fiscal-fields' ) );
 		}
 	}
 
@@ -217,6 +304,10 @@ class WC_IT_Fiscal_Fields {
 	public function save_order_meta( $order, $data ) {
 		if ( isset( $data[ $this->field_keys['user_type'] ] ) ) {
 			$order->update_meta_data( '_billing_user_type', sanitize_text_field( $data[ $this->field_keys['user_type'] ] ) );
+		}
+
+		if ( isset( $data[ $this->field_keys['ragione_sociale'] ] ) && ! empty( $data[ $this->field_keys['ragione_sociale'] ] ) ) {
+			$order->update_meta_data( '_billing_ragione_sociale', sanitize_text_field( $data[ $this->field_keys['ragione_sociale'] ] ) );
 		}
 
 		if ( isset( $data[ $this->field_keys['codice_fiscale'] ] ) && ! empty( $data[ $this->field_keys['codice_fiscale'] ] ) ) {
@@ -257,12 +348,13 @@ class WC_IT_Fiscal_Fields {
 			return;
 		}
 
-		$user_type      = $order->get_meta( '_billing_user_type' );
-		$codice_fiscale = $order->get_meta( '_billing_codice_fiscale' );
-		$partita_iva    = $order->get_meta( '_billing_partita_iva' );
+		$user_type        = $order->get_meta( '_billing_user_type' );
+		$ragione_sociale  = $order->get_meta( '_billing_ragione_sociale' );
+		$codice_fiscale   = $order->get_meta( '_billing_codice_fiscale' );
+		$partita_iva      = $order->get_meta( '_billing_partita_iva' );
 
 		// Se non ci sono dati fiscali, non mostrare nulla
-		if ( empty( $user_type ) && empty( $codice_fiscale ) && empty( $partita_iva ) ) {
+		if ( empty( $user_type ) && empty( $ragione_sociale ) && empty( $codice_fiscale ) && empty( $partita_iva ) ) {
 			return;
 		}
 
@@ -274,6 +366,13 @@ class WC_IT_Fiscal_Fields {
 					<p>
 						<strong><?php esc_html_e( 'Tipologia:', 'wc-it-fiscal-fields' ); ?></strong>
 						<?php echo esc_html( $this->get_user_type_label( $user_type ) ); ?>
+					</p>
+				<?php endif; ?>
+
+				<?php if ( $ragione_sociale ) : ?>
+					<p>
+						<strong><?php esc_html_e( 'Ragione Sociale:', 'wc-it-fiscal-fields' ); ?></strong>
+						<?php echo esc_html( $ragione_sociale ); ?>
 					</p>
 				<?php endif; ?>
 
@@ -301,12 +400,13 @@ class WC_IT_Fiscal_Fields {
 	 * @param WC_Order $order Oggetto ordine.
 	 */
 	public function display_admin_order_meta( $order ) {
-		$user_type      = $order->get_meta( '_billing_user_type' );
-		$codice_fiscale = $order->get_meta( '_billing_codice_fiscale' );
-		$partita_iva    = $order->get_meta( '_billing_partita_iva' );
+		$user_type        = $order->get_meta( '_billing_user_type' );
+		$ragione_sociale  = $order->get_meta( '_billing_ragione_sociale' );
+		$codice_fiscale   = $order->get_meta( '_billing_codice_fiscale' );
+		$partita_iva      = $order->get_meta( '_billing_partita_iva' );
 
 		// Se non ci sono dati fiscali, non mostrare il box
-		if ( empty( $user_type ) && empty( $codice_fiscale ) && empty( $partita_iva ) ) {
+		if ( empty( $user_type ) && empty( $ragione_sociale ) && empty( $codice_fiscale ) && empty( $partita_iva ) ) {
 			return;
 		}
 
@@ -318,6 +418,13 @@ class WC_IT_Fiscal_Fields {
 					<p>
 						<strong><?php esc_html_e( 'Tipologia utente:', 'wc-it-fiscal-fields' ); ?></strong><br>
 						<?php echo esc_html( $this->get_user_type_label( $user_type ) ); ?>
+					</p>
+				<?php endif; ?>
+
+				<?php if ( $ragione_sociale ) : ?>
+					<p>
+						<strong><?php esc_html_e( 'Ragione Sociale:', 'wc-it-fiscal-fields' ); ?></strong><br>
+						<?php echo esc_html( $ragione_sociale ); ?>
 					</p>
 				<?php endif; ?>
 
