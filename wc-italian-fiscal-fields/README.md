@@ -1,25 +1,27 @@
 # WooCommerce Italian Fiscal Fields
 
-Plugin WordPress per aggiungere campi fiscali italiani (Codice Fiscale e Partita IVA) al checkout di WooCommerce con logica condizionale basata sulla tipologia di utente.
+Plugin WordPress per aggiungere campi fiscali italiani (Tipologia Utente, Ragione Sociale, Codice Fiscale e Partita IVA) al checkout di WooCommerce con logica condizionale e pannello di configurazione admin.
 
 ## Descrizione
 
-Questo plugin aggiunge tre nuovi campi nella sezione di fatturazione del checkout WooCommerce:
+Questo plugin aggiunge quattro nuovi campi nella sezione di fatturazione del checkout WooCommerce:
 
-1. **Tipologia Utente** (obbligatorio) - Radio button con 3 opzioni:
-   - Persona Fisica
+1. **Tipologia Utente** (obbligatorio) - Select dropdown con 3 opzioni:
+   - Persona Fisica (default)
    - Azienda
    - Associazione/Ente
 
-2. **Codice Fiscale** - Campo testuale che appare condizionalmente
+2. **Ragione Sociale** - Campo testuale che appare condizionalmente
 
-3. **Partita IVA** - Campo testuale che appare condizionalmente
+3. **Codice Fiscale** - Campo testuale che appare condizionalmente
+
+4. **Partita IVA** - Campo testuale che appare condizionalmente
 
 ## Logica di Visibilità
 
-- **Persona Fisica**: Mostra solo Codice Fiscale (obbligatorio)
-- **Azienda**: Mostra solo Partita IVA (obbligatorio)
-- **Associazione/Ente**: Mostra entrambi i campi (almeno uno obbligatorio)
+- **Persona Fisica**: Mostra solo Codice Fiscale (configurabile come obbligatorio)
+- **Azienda**: Mostra Ragione Sociale + Partita IVA (configurabili come obbligatori)
+- **Associazione/Ente**: Mostra tutti e tre i campi: Ragione Sociale, Codice Fiscale e Partita IVA (configurabili come obbligatori)
 
 ## Requisiti
 
@@ -42,6 +44,8 @@ Questo plugin aggiunge tre nuovi campi nella sezione di fatturazione del checkou
 - **Backend**: Validazione PHP server-side per prevenire manipolazioni
 - **Formato Codice Fiscale**: 16 caratteri alfanumerici
 - **Formato Partita IVA**: 11 cifre numeriche
+- **Validazione Algoritmica**: Opzionale (configurabile) - Verifica algoritmo carattere di controllo CF e modulo 11 P.IVA
+- **Ragione Sociale**: Minimo 2 caratteri, massimo 100 caratteri
 
 ### Posizionamento Campi
 
@@ -52,6 +56,7 @@ I campi sono posizionati tramite il sistema di `priority` di WooCommerce:
 - Email (priority 30)
 - Telefono (priority 40)
 - **Tipologia Utente (priority 45)** ⬅️ NUOVO
+- **Ragione Sociale (priority 46)** ⬅️ NUOVO v2.0
 - **Codice Fiscale (priority 47)** ⬅️ NUOVO
 - **Partita IVA (priority 49)** ⬅️ NUOVO
 - Azienda (priority 50)
@@ -69,6 +74,7 @@ I dati fiscali vengono mostrati in:
 
 I dati vengono salvati come meta dell'ordine:
 - `_billing_user_type`
+- `_billing_ragione_sociale`
 - `_billing_codice_fiscale`
 - `_billing_partita_iva`
 
@@ -78,50 +84,92 @@ Il plugin è predisposto per le traduzioni con text-domain: `wc-it-fiscal-fields
 
 File .pot template disponibile in: `/languages/wc-it-fiscal-fields.pot`
 
-## Personalizzazione
+## Configurazione
 
-### Modificare Priority dei Campi
+### Pagina Admin
 
-Nel file `includes/class-wc-it-fiscal-fields.php`, metodo `add_checkout_fields()`, modifica i valori di `priority`:
+Vai su **WooCommerce → Impostazioni → Campi Fiscali** per configurare:
 
-```php
-'priority' => 45, // Cambia questo valore
-```
+#### Abilitazione Campi
+- Abilita/Disabilita Tipologia Utente
+- Abilita/Disabilita Ragione Sociale
+- Abilita/Disabilita Codice Fiscale
+- Abilita/Disabilita Partita IVA
 
-### Modificare Logica di Obbligatorietà
+#### Regole di Obbligatorietà
+- CF obbligatorio per Persona Fisica
+- Ragione Sociale obbligatoria per Azienda
+- P.IVA obbligatoria per Azienda
+- Ragione Sociale obbligatoria per Associazione/Ente
+- CF obbligatorio per Associazione/Ente
+- P.IVA obbligatoria per Associazione/Ente
 
-Nel file `includes/class-wc-it-fiscal-fields.php`, metodo `validate_checkout_fields()`, modifica le regole di validazione.
+#### Etichette Personalizzate
+- Etichetta Tipologia Utente
+- Etichetta Ragione Sociale
+- Etichetta Codice Fiscale
+- Etichetta Partita IVA
 
-### Modificare Etichette
+#### Placeholder
+- Placeholder Ragione Sociale
+- Placeholder Codice Fiscale
+- Placeholder Partita IVA
 
+#### Priority Campi
+- Priority Tipologia Utente (default: 45)
+- Priority Ragione Sociale (default: 46)
+- Priority Codice Fiscale (default: 47)
+- Priority Partita IVA (default: 49)
+
+#### Validazione Avanzata
+- Abilita validazione algoritmica CF/P.IVA (carattere di controllo e modulo 11)
+
+## Personalizzazione Avanzata
+
+### Modificare Via Codice
+
+Se preferisci modificare il codice direttamente invece di usare le opzioni admin:
+
+#### Priority dei Campi
+Nel file `includes/class-wc-it-fiscal-fields.php`, metodo `add_checkout_fields()`.
+
+#### Logica di Validazione
+Nel file `includes/class-wc-it-fiscal-validator.php`, metodi `validate_codice_fiscale()` e `validate_partita_iva()`.
+
+#### Etichette
 Tutte le stringhe utilizzano funzioni di localizzazione WordPress (`__()`, `_e()`), quindi possono essere tradotte o modificate tramite file .po/.mo.
 
 ## Struttura File
 
 ```
 wc-italian-fiscal-fields/
-├── wc-italian-fiscal-fields.php          # File principale
+├── wc-italian-fiscal-fields.php              # File principale
 ├── includes/
-│   └── class-wc-it-fiscal-fields.php     # Classe principale
+│   ├── class-wc-it-fiscal-fields.php         # Classe principale
+│   ├── class-wc-it-fiscal-options.php        # Gestione opzioni
+│   ├── class-wc-it-fiscal-validator.php      # Validazione avanzata
+│   └── class-wc-it-fiscal-admin-settings.php # Pagina configurazione admin
+├── config/
+│   └── settings-fields.php                   # Definizione campi admin
 ├── assets/
 │   ├── js/
-│   │   └── checkout-fields.js            # JavaScript per show/hide
+│   │   └── checkout-fields.js                # JavaScript configuration-driven
 │   └── css/
-│       └── checkout-fields.css           # Stili CSS
+│       └── checkout-fields.css               # Stili CSS
 ├── languages/
-│   └── wc-it-fiscal-fields.pot           # Template traduzioni
-└── README.md                              # Questo file
+│   └── wc-it-fiscal-fields.pot               # Template traduzioni
+└── README.md                                  # Questo file
 ```
 
 ## Sviluppo Futuro
 
 Possibili miglioramenti:
 
-- ✅ Validazione formale algoritmica di CF e P.IVA
-- ✅ Compatibilità con WooCommerce Checkout Blocks
-- ✅ Pannello di configurazione admin per personalizzare obbligatorietà
-- ✅ Esportazione dati fiscali in CSV/PDF
-- ✅ Integrazione con servizi di verifica CF/P.IVA online
+- ✅ Validazione formale algoritmica di CF e P.IVA *(implementato v2.0)*
+- ✅ Pannello di configurazione admin *(implementato v2.0)*
+- ⬜ Compatibilità con WooCommerce Checkout Blocks
+- ⬜ Esportazione dati fiscali in CSV/PDF
+- ⬜ Integrazione con servizi di verifica CF/P.IVA online (API Agenzia delle Entrate)
 
 ## Supporto
 
@@ -141,6 +189,18 @@ GPL v2 or later
 Sviluppato seguendo le specifiche del documento CLAUDE.md
 
 ## Changelog
+
+### 2.0.0
+- **NUOVO CAMPO**: Ragione Sociale (visibile per Azienda e Associazione/Ente)
+- Tipologia Utente: cambiato da radio buttons a **SELECT dropdown** con default persona_fisica
+- **Pagina configurazione admin**: WooCommerce → Impostazioni → Campi Fiscali (22 opzioni totali)
+- **Validazione algoritmica avanzata**: Opzionale per CF (carattere di controllo) e P.IVA (modulo 11)
+- **Sistema configuration-driven**: Architettura refactorizzata con 3 nuove classi (Options, Validator, AdminSettings)
+- Enable/disable configurabile per ogni campo
+- Obbligatorietà configurabile per tipologia utente
+- Etichette, placeholder e priority personalizzabili via admin
+- JavaScript dinamico con configurazione da backend
+- Full backward compatibility con v1.0.0
 
 ### 1.0.0
 - Release iniziale
