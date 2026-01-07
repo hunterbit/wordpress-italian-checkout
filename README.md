@@ -200,7 +200,7 @@ GPL v2 or later
 **Rocco Fusella**
 
 - Website: [https://roccofusella.it](https://roccofusella.it)
-- GitHub: [https://github.com/roccofusella](https://github.com/roccofusella)
+- GitHub: [https://github.com/hunterbit](https://github.com/hunterbit)
 
 Sviluppato seguendo le specifiche del documento **[CLAUDE.md](CLAUDE.md)**
 
