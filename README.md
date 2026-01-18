@@ -206,6 +206,9 @@ Sviluppato seguendo le specifiche del documento **[CLAUDE.md](CLAUDE.md)**
 
 ## Changelog
 
+### 2.0.2 (2026-01-07)
+- **Fix**: Sincronizzazione indicatori obbligatorietà in checkout (asterisco/“facoltativo”) e classi di validazione UI
+
 ### 2.0.1 (2026-01-07)
 - **Fix**: Aggiunta dichiarazione compatibilità con WooCommerce HPOS (High-Performance Order Storage)
 - Risolto avviso di incompatibilità WooCommerce

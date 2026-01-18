@@ -27,6 +27,43 @@
 		var pivaField = $('#billing_partita_iva_field');
 		var pivaInput = $('#billing_partita_iva');
 
+		function updateRequiredState(fieldWrapper, input, isRequired) {
+			if (!fieldWrapper.length || !input.length) {
+				return;
+			}
+
+			var label = fieldWrapper.find('label').first();
+			var optional = label.find('span.optional');
+			var required = label.find('abbr.required');
+			var optionalText = label.data('optional-text');
+
+			if (!optionalText) {
+				if (optional.length) {
+					optionalText = optional.text();
+				} else {
+					optionalText = '(facoltativo)';
+				}
+				label.data('optional-text', optionalText);
+			}
+
+			if (isRequired) {
+				optional.remove();
+				if (!required.length) {
+					label.append(' <abbr class="required" title="required">*</abbr>');
+				}
+				fieldWrapper.addClass('validate-required');
+			} else {
+				required.remove();
+				if (!optional.length) {
+					label.append(' <span class="optional">' + optionalText + '</span>');
+				}
+				fieldWrapper.removeClass('validate-required woocommerce-invalid woocommerce-invalid-required-field');
+			}
+
+			input.prop('required', isRequired);
+			input.attr('aria-required', isRequired ? 'true' : 'false');
+		}
+
 		// Fallback se config non disponibile
 		if (typeof WC_IT_Fiscal_Config === 'undefined') {
 			console.warn('WC_IT_Fiscal_Config non disponibile, uso logica di default');
@@ -41,9 +78,9 @@
 		ragioneSocialeField.hide();
 		cfField.hide();
 		pivaField.hide();
-		ragioneSocialeInput.prop('required', false);
-		cfInput.prop('required', false);
-		pivaInput.prop('required', false);
+		updateRequiredState(ragioneSocialeField, ragioneSocialeInput, false);
+		updateRequiredState(cfField, cfInput, false);
+		updateRequiredState(pivaField, pivaInput, false);
 
 		// Applica la logica in base alla tipologia utente
 		switch(userType) {
@@ -51,7 +88,11 @@
 				// Solo Codice Fiscale
 				if (WC_IT_Fiscal_Config.enable_cf) {
 					cfField.show();
-					cfInput.prop('required', WC_IT_Fiscal_Config.rules.cf_required_persona_fisica ? true : false);
+					updateRequiredState(
+						cfField,
+						cfInput,
+						WC_IT_Fiscal_Config.rules.cf_required_persona_fisica ? true : false
+					);
 				}
 				// Svuota campi non usati
 				ragioneSocialeInput.val('');
@@ -62,11 +103,19 @@
 				// Ragione Sociale + Partita IVA
 				if (WC_IT_Fiscal_Config.enable_ragione_sociale) {
 					ragioneSocialeField.show();
-					ragioneSocialeInput.prop('required', WC_IT_Fiscal_Config.rules.ragione_sociale_required_azienda ? true : false);
+					updateRequiredState(
+						ragioneSocialeField,
+						ragioneSocialeInput,
+						WC_IT_Fiscal_Config.rules.ragione_sociale_required_azienda ? true : false
+					);
 				}
 				if (WC_IT_Fiscal_Config.enable_piva) {
 					pivaField.show();
-					pivaInput.prop('required', WC_IT_Fiscal_Config.rules.piva_required_azienda ? true : false);
+					updateRequiredState(
+						pivaField,
+						pivaInput,
+						WC_IT_Fiscal_Config.rules.piva_required_azienda ? true : false
+					);
 				}
 				// Svuota Codice Fiscale
 				cfInput.val('');
@@ -76,15 +125,27 @@
 				// Ragione Sociale + Codice Fiscale + Partita IVA
 				if (WC_IT_Fiscal_Config.enable_ragione_sociale) {
 					ragioneSocialeField.show();
-					ragioneSocialeInput.prop('required', WC_IT_Fiscal_Config.rules.ragione_sociale_required_associazione ? true : false);
+					updateRequiredState(
+						ragioneSocialeField,
+						ragioneSocialeInput,
+						WC_IT_Fiscal_Config.rules.ragione_sociale_required_associazione ? true : false
+					);
 				}
 				if (WC_IT_Fiscal_Config.enable_cf) {
 					cfField.show();
-					cfInput.prop('required', WC_IT_Fiscal_Config.rules.cf_required_associazione ? true : false);
+					updateRequiredState(
+						cfField,
+						cfInput,
+						WC_IT_Fiscal_Config.rules.cf_required_associazione ? true : false
+					);
 				}
 				if (WC_IT_Fiscal_Config.enable_piva) {
 					pivaField.show();
-					pivaInput.prop('required', WC_IT_Fiscal_Config.rules.piva_required_associazione ? true : false);
+					updateRequiredState(
+						pivaField,
+						pivaInput,
+						WC_IT_Fiscal_Config.rules.piva_required_associazione ? true : false
+					);
 				}
 				break;
 
